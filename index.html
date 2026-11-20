@@ -7,7 +7,11 @@
 <style>
 body{background:#0e1116;color:#e6edf3;font-family:system-ui;padding:16px}
 .k{color:#8b949e;font-size:12px;margin-top:12px}
-.v{font-size:16px;word-break:break-all}
+.v{font-size:15px;word-break:break-all}
+button{margin-top:16px;padding:12px 20px;border:0;border-radius:8px;
+background:#2ea043;color:#fff;font-size:15px;width:100%}
+pre{background:#161b22;padding:10px;border-radius:8px;font-size:12px;
+overflow-x:auto;white-space:pre-wrap}
 </style>
 </head><body>
 <h3>GramPTC · smoke test</h3>
@@ -15,6 +19,7 @@ body{background:#0e1116;color:#e6edf3;font-family:system-ui;padding:16px}
 <div class=k>User ID</div><div class=v id=uid>-</div>
 <div class=k>initData</div><div class=v id=init>-</div>
 <div class=k>Platform</div><div class=v id=plat>-</div>
+<div id=area></div>
 <script>
 var tg = window.Telegram ? window.Telegram.WebApp : null;
 if (!tg) {
@@ -29,6 +34,24 @@ if (!tg) {
   document.getElementById("uid").textContent = u.id ? u.id : "-";
   document.getElementById("init").textContent = tg.initData ? "ADA (" + tg.initData.length + " karakter)" : "KOSONG";
   document.getElementById("plat").textContent = tg.platform ? tg.platform : "-";
+
+  var area = document.getElementById("area");
+  area.innerHTML = "<button id=btn>Uji ke backend</button><div class=k>Hasil</div><pre id=out>-</pre>";
+  document.getElementById("btn").onclick = function () {
+    var out = document.getElementById("out");
+    out.textContent = "mengirim...";
+    fetch("http://127.0.0.1:8080/api/me", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({initData: tg.initData})
+    }).then(function (r) {
+      return r.json();
+    }).then(function (j) {
+      out.textContent = JSON.stringify(j, null, 2);
+    }).catch(function (e) {
+      out.textContent = "GAGAL: " + e;
+    });
+  };
 }
 </script>
 </body></html>
